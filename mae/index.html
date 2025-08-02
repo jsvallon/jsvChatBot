@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Assistant MAE - Chatbot</title>
+</head>
+<body>
+  <h2 style="text-align: center;">Bienvenue sur l'assistant virtuel du MAE 🇭🇹</h2>
+
+  <!-- Voiceflow Embed Script -->
+  <script type="text/javascript">
+   (function(d, t) {
+      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+      v.onload = function() {
+        window.voiceflow.chat.load({
+          verify: { projectID: '688ceb2bf1a4d2cc7627a283' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production',
+          voice: {
+            url: "https://runtime-api.voiceflow.com"
+          }
+        });
+      }
+      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+  })(document, 'script');
+ 
+  </script>
+</body>
+</html>
