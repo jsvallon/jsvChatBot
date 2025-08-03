@@ -1,34 +1,449 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Assistant MAE - Chatbot</title>
+  <title>Chatbot Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      height: 100vh;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    }
+
+    .sidebar {
+      width: 300px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1c1c1c 100%);
+      padding: 1.5rem;
+      box-shadow: 4px 0 30px rgba(0,0,0,0.5);
+      position: relative;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #00d4ff, #00ff88, #ff6b35);
+    }
+
+    .sidebar-title {
+      color: #ffffff;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .sidebar button {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.1);
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: fadeInFromLeft 0.6s ease forwards;
+    }
+
+    @keyframes fadeInFromLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .sidebar button:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .sidebar button:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .sidebar button:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+
+    .sidebar button:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .sidebar button.active {
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%) !important;
+      border-color: #00d4ff !important;
+      box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4) !important;
+      color: white !important;
+    }
+
+    .button-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
+    .mae-icon {
+      background: linear-gradient(135deg, #ff4757, #ff3838);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    .immigration-icon {
+      background: linear-gradient(135deg, #2ed573, #20bf6b);
+      color: white;
+      box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+    }
+
+    .betting-icon {
+      background: linear-gradient(135deg, #ffa726, #ff9800);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 167, 38, 0.3);
+    }
+
+    .chat-container {
+      flex-grow: 1;
+      position: relative;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      position: relative;
+    }
+
+    .chat-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    #chatbot-container {
+      width: 100%;
+      height: 100%;
+      min-height: 600px;
+      background: #1c1c1c;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      opacity: 0;
+      transform: scale(0.95);
+      animation: fadeInScale 0.8s ease forwards;
+      animation-delay: 0.5s;
+    }
+
+    @keyframes fadeInScale {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 400px;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top: 4px solid #00d4ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .loading-subtext {
+      font-size: 14px;
+      opacity: 0.7;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
-  <h2 style="text-align: center;">Bienvenue sur l'assistant virtuel du MAE 🇭🇹</h2>
+  <div class="sidebar">
+    <div class="sidebar-title">
+      🇭🇹 Assistants Virtuels
+    </div>
+    
+    <button onclick="loadBot('mae')" id="mae-btn">
+      <div class="button-icon mae-icon">
+        🏛️
+      </div>
+      <div>
+        <strong>MAE</strong><br>
+        <small style="opacity: 0.8;">Ministère des Affaires Étrangères</small>
+      </div>
+    </button>
+    
+    <!--<button onclick="loadBot('immigration')" id="immigration-btn">
+      <div class="button-icon immigration-icon">
+        🛂
+      </div>
+      <div>
+        <strong>Immigration</strong><br>
+        <small style="opacity: 0.8;">Services d'Immigration</small>
+      </div>
+    </button>-->
+    
+    <!-- <button onclick="loadBot('betting')" id="betting-btn">
+      <div class="button-icon betting-icon">
+        🎲
+      </div>
+      <div>
+        <strong>Betting</strong><br>
+        <small style="opacity: 0.8;">Régulation des Jeux</small>
+      </div>
+    </button> -->
+  </div>
 
-  <div id="chatbot-container" style="width:100%;max-width:600px;margin:0 auto;"></div>
+  <div class="chat-container">
+    <div id="chatbot-container"></div>
+  </div>
 
-  <!-- Voiceflow Embed Script -->
-<script type="text/javascript">
-  (function(d, t) {
-      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-      v.onload = function() {
-        window.voiceflow.chat.load({
-          verify: { projectID: '688ceb2bf1a4d2cc7627a283' },
-          url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production',
-          voice: {
-            url: "https://runtime-api.voiceflow.com"
-          },
-          render: {
-            mode: 'embedded',
-            target: document.getElementById('chatbot-container')
-          }
-        });
+  <script type="text/javascript">
+    const botIDs = {
+      mae: '688ceb2bf1a4d2cc7627a283',
+      immigration: '6888120d28d89b3c3ef1c86e',
+      betting: '6888120d28d89b3c3ef1c86e--'
+    };
+
+    let currentBot = null;
+
+    function loadBot(botKey) {
+      console.log(`=== Starting to load ${botKey} bot ===`);
+      
+      // Prevent loading the same bot twice
+      if (currentBot === botKey) {
+        console.log(`${botKey} bot is already loaded, skipping...`);
+        return;
       }
-      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
-  })(document, 'script');
-</script>
+      
+      // Add visual feedback - improved button selection
+      const buttons = document.querySelectorAll('.sidebar button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      // More reliable way to find the correct button
+      const buttonMap = {
+        'mae': 'mae-btn',
+        'immigration': 'immigration-btn', 
+        'betting': 'betting-btn'
+      };
+      
+      const targetButton = document.getElementById(buttonMap[botKey]);
+      if (targetButton) {
+        targetButton.classList.add('active');
+        console.log(`✅ Activated button for ${botKey}`);
+      } else {
+        console.log(`⚠️ Button not found for ${botKey}`);
+      }
+      
+      // Get the container
+      const container = document.getElementById("chatbot-container");
+      
+      // Show loading message with spinner
+      container.innerHTML = `
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Chargement du chatbot ${botKey.toUpperCase()}</div>
+          <div class="loading-subtext">Préparation de l'assistant virtuel...</div>
+        </div>
+      `;
+      
+      // Complete cleanup of Voiceflow
+      console.log('🧹 Starting complete cleanup...');
+      
+      // 1. Destroy Voiceflow instance if it exists
+      if (window.voiceflow && window.voiceflow.chat) {
+        try {
+          if (typeof window.voiceflow.chat.destroy === 'function') {
+            window.voiceflow.chat.destroy();
+            console.log('🗑️ Destroyed Voiceflow chat instance');
+          }
+          if (typeof window.voiceflow.chat.close === 'function') {
+            window.voiceflow.chat.close();
+            console.log('🔒 Closed Voiceflow chat');
+          }
+        } catch (e) {
+          console.log('⚠️ Error during Voiceflow cleanup:', e);
+        }
+      }
+      
+      // 2. Remove all Voiceflow-related elements from DOM
+      const voiceflowElements = document.querySelectorAll('[data-vf], [class*="vf"], [id*="vf"], [class*="voiceflow"], [id*="voiceflow"]');
+      voiceflowElements.forEach(el => {
+        try {
+          el.remove();
+          console.log('🗑️ Removed Voiceflow element:', el.tagName);
+        } catch (e) {
+          console.log('⚠️ Error removing element:', e);
+        }
+      });
+      
+      // 3. Clear the container completely
+      container.innerHTML = "";
+      
+      // 4. Remove any existing Voiceflow scripts
+      const existingScripts = document.querySelectorAll('script[src*="voiceflow"]');
+      console.log(`🗑️ Removing ${existingScripts.length} existing Voiceflow scripts`);
+      existingScripts.forEach(script => script.remove());
+      
+      // 5. Clear Voiceflow from window object
+      if (window.voiceflow) {
+        console.log('🗑️ Clearing Voiceflow from window object');
+        delete window.voiceflow;
+      }
+      
+      // 6. Wait longer for complete cleanup
+      setTimeout(() => {
+        console.log('🚀 Starting fresh bot load...');
+        
+        // Create completely new container element to avoid shadow DOM conflicts
+        const newContainer = document.createElement('div');
+        newContainer.id = 'chatbot-container';
+        newContainer.style.width = '100%';
+        newContainer.style.height = '100%';
+        newContainer.style.minHeight = '600px';
+        newContainer.style.opacity = '0';
+        newContainer.style.transform = 'scale(0.95)';
+        newContainer.style.animation = 'fadeInScale 0.8s ease forwards';
+        
+        // Replace the old container
+        const oldContainer = document.getElementById('chatbot-container');
+        oldContainer.parentNode.replaceChild(newContainer, oldContainer);
+        
+        // Create new script for this bot
+        const vfScript = document.createElement("script");
+        vfScript.type = "text/javascript";
+        vfScript.onload = function() {
+          console.log(`📦 Voiceflow script loaded, initializing ${botKey} bot with ID: ${botIDs[botKey]}`);
+          
+          // Wait for script to be fully ready
+          setTimeout(() => {
+            try {
+              if (!window.voiceflow || !window.voiceflow.chat) {
+                throw new Error('Voiceflow object not available');
+              }
+              
+              const targetContainer = document.getElementById('chatbot-container');
+              if (!targetContainer) {
+                throw new Error('Container not found');
+              }
+              
+              window.voiceflow.chat.load({
+                verify: { projectID: botIDs[botKey] },
+                url: 'https://general-runtime.voiceflow.com',
+                versionID: 'production',
+                voice: {
+                  url: "https://runtime-api.voiceflow.com"
+                },
+                render: {
+                  mode: 'embedded',
+                  target: targetContainer
+                }
+              });
+              
+              currentBot = botKey;
+              console.log(`✅ Successfully loaded ${botKey} bot`);
+              
+            } catch (error) {
+              console.error('❌ Error in voiceflow.chat.load:', error);
+              const errorContainer = document.getElementById('chatbot-container');
+              if (errorContainer) {
+                errorContainer.innerHTML = `
+                  <div class="loading-container">
+                    <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                    <div class="loading-text" style="color: #ff4757;">Erreur de chargement</div>
+                    <div class="loading-subtext">Le chatbot n'a pas pu être initialisé</div>
+                  </div>
+                `;
+              }
+            }
+          }, 200);
+        };
+        
+        vfScript.onerror = function() {
+          console.error('❌ Failed to load Voiceflow script');
+          const errorContainer = document.getElementById('chatbot-container');
+          if (errorContainer) {
+            errorContainer.innerHTML = `
+              <div class="loading-container">
+                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                <div class="loading-text" style="color: #ffa726;">Erreur de connexion</div>
+                <div class="loading-subtext">Impossible de charger le script Voiceflow</div>
+              </div>
+            `;
+          }
+        };
+        
+        console.log(`📥 Loading Voiceflow script for ${botKey}...`);
+        vfScript.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
+        document.head.appendChild(vfScript);
+      }, 500); // Increased timeout for better cleanup
+    }
+
+    // Load default bot (MAE) when page loads
+    window.onload = function() {
+      console.log('Page loaded, initializing default MAE bot...');
+      // Small delay to ensure everything is ready
+      setTimeout(() => loadBot('mae'), 500);
+    };
+  </script>
 </body>
 </html>
